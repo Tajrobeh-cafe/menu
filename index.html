@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منوی کافه تجربه</title>
+    <meta name="theme-color" content="#8B4513">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+    <style>
+        :root {
+            --primary-color: #8B4513;
+            --secondary-color: #A52A2A;
+            --background-color: #f5f5f5;
+            --card-color: #ffffff;
+            --accent-color: #D2B48C;
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        .install-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1000;
+            display: none;
+            border: none;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            max-width: 150px;
+            display: block;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .category {
+            background-color: var(--card-color);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .category-header {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: var(--secondary-color);
+            background-color: #f9f9f9;
+        }
+
+        .category-header:hover {
+            background-color: #f0f0f0;
+        }
+
+        .category-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            padding: 0 20px;
+        }
+
+        .category.active .category-content {
+            max-height: 1000px;
+            padding: 15px 20px;
+        }
+
+        .menu-item {
+            padding: 12px 0;
+            border-bottom: 1px dashed #ddd;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        /* استایل‌های مینی گیم */
+        .mini-game-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .mini-game-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            cursor: pointer;
+            font-family: 'Vazirmatn', sans-serif;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .mini-game-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-3px);
+        }
+
+        /* استایل‌های بازی مار */
+        #gameModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .game-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        #gameCanvas {
+            background-color: #f0f0f0;
+            border: 2px solid var(--primary-color);
+            margin: 10px 0;
+            display: block;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .game-score {
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .close-game {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .game-controls {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        /* دکمه‌های لمسی */
+        .touch-controls {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .touch-row {
+            display: flex;
+            justify-content: center;
+            margin: 5px 0;
+        }
+
+        .touch-btn {
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            margin: 0 10px;
+            touch-action: manipulation;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .category-header {
+                padding: 12px 15px;
+                font-size: 1.1em;
+            }
+
+            .header-image {
+                max-height: 200px;
+            }
+
+            .mini-game-btn {
+                padding: 12px 24px;
+                font-size: 16px;
+            }
+
+            .touch-controls {
+                display: block;
+            }
+
+            #gameCanvas {
+                max-height: 70vh;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <button class="install-btn" id="installButton">نصب اپلیکیشن</button>
+
+    <div class="container">
+        <img src="https://i.ibb.co/r2TjrVXz/photo-2025-08-01-00-40-14.jpg" alt="کافه تجربه" class="header-image">
+        <h1>منوی کافه تجربه</h1>
+
+        <!-- اسپرسو بار -->
+        <div class="category" onclick="toggleCategory(this)">
+            <div class="category-header">
+                <span>اسپرسو بار</span>
+                <span>+</span>
+            </div>
+            <div class="category-content">
+                <div class="menu-item">
+                    <span>اسپرسو</span>
+                    <span>T90</span>
+                </div>
+                <div class="menu-item">
+                    <span>آمریکانو</span>
+                    <span>T100</span>
+                </div>
+                <div class="menu-item">
+                    <span>موکا</span>
+                    <span>T140</span>
+                </div>
+                <div class="menu-item">
+                    <span>لاته</span>
+                    <span>T120</span>
+                </div>
+                <div class="menu-item">
+                    <span>کوکولاته</span>
+                    <span>T140</span>
+                </div>
+                <div class="menu-item">
+                    <span>کورتادو</span>
+                    <span>T110</span>
+                </div>
+                <div class="menu-item">
+                    <span>کارامل ماکیاتو</span>
+                    <span>T140</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- بیکری و قنادی -->
+        <div class="category" onclick="toggleCategory(this)">
+            <div class="category-header">
+                <span>بیکری و قنادی</span>
+                <span>+</span>
+            </div>
+            <div class="category-content">
+                <div class="menu-item">
+                    <span>کوکی شکلات گردو</span>
+                    <span>T35</span>
+                </div>
+                <div class="menu-item">
+                    <span>کوکی دبل چاکلت پنیری</span>
+                    <span>T65</span>
+                </div>
+                <div class="menu-item">
+                    <span>گرانولا بار</span>
+                    <span>T80</span>
+                </div>
+                <div class="menu-item">
+                    <span>چیزکیک سن سباستین پسته</span>
+                    <span>T170</span>
+                </div>
+                <div class="menu-item">
+                    <span>تیرامیسو</span>
+                    <span>T125</span>
+                </div>
+                <div class="menu-item">
+                    <span>چیزکیک انبه</span>
+                    <span>T140</span>
+                </div>
+                <div class="menu-item">
+                    <span>جار سه شیر</span>
+                    <span>T140</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- برانچ -->
+        <div class="category" onclick="toggleCategory(this)">
+            <div class="category-header">
+                <span>برانچ</span>
+                <span>+</span>
+            </div>
+            <div class="category-content">
+                <div class="menu-item">
+                    <span>کروسان بیکن</span>
+                    <span>T240</span>
+                </div>
+                <div class="menu-item">
+                    <span>چاپاتای مرغ و پسو</span>
+                    <span>T285</span>
+                </div>
+                <div class="menu-item">
+                    <span>پنینی مرغ باباغونوش</span>
+                    <span>T260</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- نوشیدنی‌های سرد -->
+        <div class="category" onclick="toggleCategory(this)">
+            <div class="category-header">
+                <span>نوشیدنی‌های سرد</span>
+                <span>+</span>
+            </div>
+            <div class="category-content">
+                <div class="menu-item">
+                    <span>آیس لاته</span>
+                    <span>T130</span>
+                </div>
+                <div class="menu-item">
+                    <span>ایس امریکانو</span>
+                    <span>T110</span>
+                </div>
+                <div class="menu-item">
+                    <span>ایس کوکولاته</span>
+                    <span>T145</span>
+                </div>
+                <div class="menu-item">
+                    <span>ایس کارامل ماکیاتو</span>
+                    <span>T145</span>
+                </div>
+                <div class="menu-item">
+                    <span>ایس موکا</span>
+                    <span>T145</span>
+                </div>
+                <div class="menu-item">
+                    <span>افوگاتو</span>
+                    <span>T145</span>
+                </div>
+                <div class="menu-item">
+                    <span>شیک لوتوس</span>
+                    <span>T220</span>
+                </div>
+                <div class="menu-item">
+                    <span>شیک نوتلا</span>
+                    <span>T245</span>
+                </div>
+                <div class="menu-item">
+                    <span>شیک کره بادوم زمینی</span>
+                    <span>T230</span>
+                </div>
+                <div class="menu-item">
+                    <span>ماچا منگو</span>
+                    <span>T190</span>
+                </div>
+                <div class="menu-item">
+                    <span>ماچا بری</span>
+                    <span>T170</span>
+                </div>
+                <div class="menu-item">
+                    <span>اسپرولینا هلو انبه</span>
+                    <span>T220</span>
+                </div>
+                <div class="menu-item">
+                    <span>اسپرولینا بری</span>
+                    <span>T200</span>
+                </div>
+                <div class="menu-item">
+                    <span>ایس اورنج اسپرسو</span>
+                    <span>T160</span>
+                </div>
+                <div class="menu-item">
+                    <span>ایس انار اسپرسو</span>
+                    <span>T160</span>
+                </div>
+                <div class="menu-item">
+                    <span>ملون موهیتو</span>
+                    <span>T110</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- بارگرم -->
+        <div class="category" onclick="toggleCategory(this)">
+            <div class="category-header">
+                <span>بارگرم</span>
+                <span>+</span>
+            </div>
+            <div class="category-content">
+                <div class="menu-item">
+                    <span>چای لاهیجان</span>
+                    <span>T75</span>
+                </div>
+                <div class="menu-item">
+                    <span>چای سبز</span>
+                    <span>T90</span>
+                </div>
+                <div class="menu-item">
+                    <span>چای دارچین</span>
+                    <span>T85</span>
+                </div>
+                <div class="menu-item">
+                    <span>دمنوش دارچین</span>
+                    <span>T100</span>
+                </div>
+                <div class="menu-item">
+                    <span>دمنوش سرخ</span>
+                    <span>T105</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- بخش مینی گیم -->
+        <div class="mini-game-container">
+            <button class="mini-game-btn" onclick="openSnakeGame()">مینی گیم</button>
+        </div>
+    </div>
+
+    <!-- مودال بازی مار -->
+    <div id="gameModal">
+        <div class="game-container">
+            <div class="game-header">
+                <div class="game-score">امتیاز: <span id="score">0</span></div>
+                <button class="close-game" onclick="closeGame()">بستن</button>
+            </div>
+            <canvas id="gameCanvas"></canvas>
+            <div class="game-controls">
+                از کلیدهای جهت‌دار کیبورد یا دکمه‌های زیر برای حرکت استفاده کنید
+            </div>
+            <!-- دکمه‌های کنترل لمسی -->
+            <div class="touch-controls" id="touchControls">
+                <div class="touch-row">
+                    <button class="touch-btn" onclick="changeDirection(0, -1)">↑</button>
+                </div>
+                <div class="touch-row">
+                    <button class="touch-btn" onclick="changeDirection(-1, 0)">←</button>
+                    <button class="touch-btn" onclick="changeDirection(1, 0)">→</button>
+                </div>
+                <div class="touch-row">
+                    <button class="touch-btn" onclick="changeDirection(0, 1)">↓</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // متغیرهای بازی مار
+        let snakeGame;
+        let gameOver = false;
+        let lastTimestamp = 0;
+        let gridSize = 20;
+        let tileCount;
+        let snake = [];
+        let food = {};
+        let xVelocity = 0;
+        let yVelocity = 0;
+        let score = 0;
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let gameSpeed = 200; // سرعت بازی (هر 200ms حرکت کند)
+        let logoImg = new Image();
+
+        // بارگذاری تصویر لوگو برای سر مار
+        logoImg.src = 'https://i.ibb.co/r2TjrVXz/photo-2025-08-01-00-40-14.jpg';
+        logoImg.onload = function() {
+            console.log('تصویر لوگو بارگذاری شد');
+        };
+
+        // تابع toggleCategory
+        function toggleCategory(category) {
+            // بستن همه دسته‌های دیگر
+            document.querySelectorAll('.category').forEach(item => {
+                if (item !== category) {
+                    item.classList.remove('active');
+                    item.querySelector('.category-header span:last-child').textContent = '+';
+                }
+            });
+
+            // تغییر وضعیت دسته فعلی
+            category.classList.toggle('active');
+            const sign = category.querySelector('.category-header span:last-child');
+            sign.textContent = category.classList.contains('active') ? '-' : '+';
+
+            // اسکرول به بالای دسته باز شده
+            if (category.classList.contains('active')) {
+                category.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // PWA Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker ثبت شد');
+                    })
+                    .catch(err => {
+                        console.log('خطا در ثبت ServiceWorker:', err);
+                    });
+            });
+        }
+
+        // دکمه نصب PWA
+        let deferredPrompt;
+        const installButton = document.getElementById('installButton');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installButton.style.display = 'block';
+        });
+
+        installButton.addEventListener('click', () => {
+            if(deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('کاربر نصب را پذیرفت');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        });
+
+        // بازی مار
+        function openSnakeGame() {
+            document.getElementById('gameModal').style.display = 'flex';
+            initSnakeGame();
+        }
+
+        function closeGame() {
+            document.getElementById('gameModal').style.display = 'none';
+            gameOver = true;
+        }
+
+        function initSnakeGame() {
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            const scoreElement = document.getElementById('score');
+
+            // تنظیمات اولیه
+            resizeCanvas();
+            tileCount = Math.floor(canvas.width / gridSize);
+            score = 0;
+            scoreElement.textContent = score;
+
+            // مقداردهی اولیه مار
+            snake = [
+                {x: Math.floor(tileCount/2), y: Math.floor(tileCount/2)}
+            ];
+
+            // ایجاد غذا
+            createFood();
+
+            // تنظیم کنترل‌ها
+            setupTouchControls();
+
+            // شروع بازی
+            xVelocity = 0;
+            yVelocity = 0;
+            gameOver = false;
+            lastTimestamp = 0;
+            requestAnimationFrame(gameLoop);
+        }
+
+        function resizeCanvas() {
+            const canvas = document.getElementById('gameCanvas');
+            const gameContainer = document.querySelector('.game-container');
+
+            // تنظیم سایز بر اساس عرض صفحه
+            const size = Math.min(gameContainer.offsetWidth - 40, 400);
+            canvas.width = size;
+            canvas.height = size;
+            gridSize = size / 20;
+
+            // نمایش دکمه‌های لمسی فقط در موبایل
+            const touchControls = document.getElementById('touchControls');
+            if (window.innerWidth <= 768) {
+                touchControls.style.display = 'block';
+            } else {
+                touchControls.style.display = 'none';
+            }
+        }
+
+        function createFood() {
+            food = {
+                x: Math.floor(Math.random() * tileCount),
+                y: Math.floor(Math.random() * tileCount)
+            };
+
+            // اطمینان از اینکه غذا روی مار نباشد
+            for (let segment of snake) {
+                if (segment.x === food.x && segment.y === food.y) {
+                    return createFood();
+                }
+            }
+        }
+
+        function gameLoop(timestamp) {
+            if (!lastTimestamp) {
+                lastTimestamp = timestamp;
+            }
+
+            const deltaTime = timestamp - lastTimestamp;
+
+            if (deltaTime >= gameSpeed) { // تنظیم سرعت بازی
+                updateGame();
+                lastTimestamp = timestamp;
+            }
+
+            if (!gameOver) {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function updateGame() {
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            const scoreElement = document.getElementById('score');
+
+            // حرکت مار
+            const head = {x: snake[0].x + xVelocity, y: snake[0].y + yVelocity};
+            snake.unshift(head);
+
+            // بررسی برخورد با غذا
+            if (head.x === food.x && head.y === food.y) {
+                score += 10;
+                scoreElement.textContent = score;
+                createFood();
+            } else {
+                snake.pop();
+            }
+
+            // بررسی برخورد با دیوار یا خودش
+            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount ||
+                snake.slice(1).some(segment => segment.x === head.x && segment.y === head.y)) {
+                gameOver = true;
+                setTimeout(() => {
+                    alert(`بازی تمام شد! امتیاز شما: ${score}`);
+                    closeGame();
+                }, 100);
+                return;
+            }
+
+            // رسم بازی
+            drawGame();
+        }
+
+        function drawGame() {
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // پاک کردن صفحه
+            ctx.fillStyle = '#f0f0f0';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // رسم غذا
+            ctx.fillStyle = '#A52A2A';
+            ctx.beginPath();
+            ctx.arc(
+                food.x * gridSize + gridSize/2,
+                food.y * gridSize + gridSize/2,
+                gridSize/2, 0, Math.PI * 2
+            );
+            ctx.fill();
+
+            // رسم مار
+            snake.forEach((segment, index) => {
+                if (index === 0) {
+                    // سر مار (تصویر لوگو)
+                    if (logoImg.complete) {
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.arc(
+                            segment.x * gridSize + gridSize/2,
+                            segment.y * gridSize + gridSize/2,
+                            gridSize/2, 0, Math.PI * 2
+                        );
+                        ctx.closePath();
+                        ctx.clip();
+                        ctx.drawImage(
+                            logoImg,
+                            segment.x * gridSize,
+                            segment.y * gridSize,
+                            gridSize, gridSize
+                        );
+                        ctx.restore();
+                    } else {
+                        // اگر تصویر لوگو بارگذاری نشده، از دایره استفاده شود
+                        ctx.fillStyle = '#8B4513';
+                        ctx.beginPath();
+                        ctx.arc(
+                            segment.x * gridSize + gridSize/2,
+                            segment.y * gridSize + gridSize/2,
+                            gridSize/2, 0, Math.PI * 2
+                        );
+                        ctx.fill();
+                    }
+                } else {
+                    // بدن مار
+                    ctx.fillStyle = '#8B4513';
+                    ctx.fillRect(
+                        segment.x * gridSize,
+                        segment.y * gridSize,
+                        gridSize, gridSize
+                    );
+                }
+            });
+        }
+
+        // تابع تغییر جهت با دکمه‌های مجازی
+        function changeDirection(x, y) {
+            if ((xVelocity === 0 || x !== -xVelocity) &&
+                (yVelocity === 0 || y !== -yVelocity)) {
+                xVelocity = x;
+                yVelocity = y;
+            }
+        }
+
+        // کنترل‌های لمسی
+        function setupTouchControls() {
+            const canvas = document.getElementById('gameCanvas');
+
+            canvas.addEventListener('touchstart', handleTouchStart, {passive: false});
+            canvas.addEventListener('touchmove', handleTouchMove, {passive: false});
+        }
+
+        function handleTouchStart(e) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            e.preventDefault();
+        }
+
+        function handleTouchMove(e) {
+            if (!touchStartX || !touchStartY) return;
+
+            const touchEndX = e.touches[0].clientX;
+            const touchEndY = e.touches[0].clientY;
+
+            const diffX = touchStartX - touchEndX;
+            const diffY = touchStartY - touchEndY;
+
+            // حداقل حرکت برای تشخیص سوایپ
+            if (Math.abs(diffX) < 30 && Math.abs(diffY) < 30) return;
+
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                // حرکت افقی
+                if (diffX > 0 && xVelocity !== 1) {
+                    // چپ
+                    xVelocity = -1;
+                    yVelocity = 0;
+                } else if (diffX < 0 && xVelocity !== -1) {
+                    // راست
+                    xVelocity = 1;
+                    yVelocity = 0;
+                }
+            } else {
+                // حرکت عمودی
+                if (diffY > 0 && yVelocity !== 1) {
+                    // بالا
+                    xVelocity = 0;
+                    yVelocity = -1;
+                } else if (diffY < 0 && yVelocity !== -1) {
+                    // پایین
+                    xVelocity = 0;
+                    yVelocity = 1;
+                }
+            }
+
+            touchStartX = 0;
+            touchStartY = 0;
+            e.preventDefault();
+        }
+
+        // کنترل با کیبورد
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp':
+                    if (yVelocity !== 1) {
+                        xVelocity = 0;
+                        yVelocity = -1;
+                    }
+                    break;
+                case 'ArrowDown':
+                    if (yVelocity !== -1) {
+                        xVelocity = 0;
+                        yVelocity = 1;
+                    }
+                    break;
+                case 'ArrowLeft':
+                    if (xVelocity !== 1) {
+                        xVelocity = -1;
+                        yVelocity = 0;
+                    }
+                    break;
+                case 'ArrowRight':
+                    if (xVelocity !== -1) {
+                        xVelocity = 1;
+                        yVelocity = 0;
+                    }
+                    break;
+            }
+        });
+
+        // تنظیم مجدد Canvas هنگام تغییر سایز پنجره
+        window.addEventListener('resize', function() {
+            if (document.getElementById('gameModal').style.display === 'flex') {
+                resizeCanvas();
+                const canvas = document.getElementById('gameCanvas');
+                tileCount = Math.floor(canvas.width / gridSize);
+            }
+        });
+    </script>
+</body>
+</html>
